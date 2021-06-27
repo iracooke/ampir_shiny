@@ -1,0 +1,28 @@
+---
+title: "Chunking"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Chunking a seq of proteins to be processed with ampir. This is so that we can provide some progress feedback to the user.
+
+```{r}
+seqs <- read_faa("human-proteomeUP000005640.fasta")
+        
+n_chunks <- ceiling(nrow(seqs)/1000)
+        
+chunking_group <- rep(1:n_chunks,1000)[1:nrow(seqs)]
+
+chunked_seqs <- cbind(seqs,factor(chunking_group))
+
+predict_with_progress <- function(df,...){
+  
+  predict_amps(df,...)
+}
+
+preds <- split(seqs,chunking_group) %>% map_dfr(predict_with_progress,n_cores=4)
+
+```
