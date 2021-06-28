@@ -35,7 +35,9 @@ shinyUI(fluidPage(
                 p("You may either paste sequences into the text box below (suitable for small searches) or upload a file containing your sequences"),
                 br(),
                 textAreaInput("text_sequences", "Paste protein sequences", 
-                              value = "", width = "100%",height=200, placeholder = ">dbAMP_01779
+                              value = "", width = "100%",height=200, placeholder = "Example input:
+                              
+>dbAMP_01779
 FIGPIISALASLFG
 >dbAMP_00731
 AVPLAVPLVYMGASVSPAVWNWLLVTFGAAAVAAAAVTVSDNDSHSCANNRGWCRSRCFSHEYIDSWHSDVCGSYDCCRPRY

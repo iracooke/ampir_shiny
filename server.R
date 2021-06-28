@@ -49,7 +49,6 @@ parse_fasta <- function(lines) {
     data.frame(seq_name, seq_aa, stringsAsFactors = FALSE)
 }
 
-# Define server logic required to draw a histogram
 shinyServer(function(input, output) {
 
     valid_inputs <- eventReactive(input$go,{
@@ -57,7 +56,6 @@ shinyServer(function(input, output) {
         
         
         if (is.null(input$uploaded_sequences)){
-            req(input$text_sequences)
             lines <- stringi::stri_split_lines(input$text_sequences)[[1]]
             return(parse_fasta(lines))
         } else {
@@ -70,9 +68,12 @@ shinyServer(function(input, output) {
     })
     
     predictions <- reactive({
-        ampir_model <- ifelse( input$ampir_model == "Full length precursor proteins  (precursor)","precursor","mature")
+        ampir_model <- ifelse( input$ampir_model == "Full length precursor proteins (precursor)","precursor","mature")
         
         seqs <- valid_inputs()
+        if ( nrow(seqs)==0){
+            return(list(dt=NULL,info=NULL))
+        }
         
         n_chunks <- ceiling(nrow(seqs)/3000)
         
@@ -94,30 +95,43 @@ shinyServer(function(input, output) {
         
         preds <- split(chunked_seqs,chunking_group) %>% map_dfr(predict_with_progress)
         
-        preds %>% select(Name=seq_name,`AMP Probability`=prob_AMP,`Sequence`=seq_aa)
+        dt <- preds %>% select(Name=seq_name,`AMP Probability`=prob_AMP,`Sequence`=seq_aa)
+        info <- c(model=ampir_model)
+        list(dt=dt,info=info)
     })
     
     output$final_results <- renderUI({
-        ampir_model <- ifelse( input$ampir_model == "Full length precursor proteins  (precursor)","precursor","mature")
         ampir_version <- packageVersion("ampir")
-        preds <- predictions()
-        has_outputs=(nrow(predictions()) > 0 )
+        preds <- predictions()$dt
+        ampir_model <- predictions()$info['model']
+        
+        
+        has_outputs=(!is.null(preds) && (nrow(preds) > 0) )
 
         if ( has_outputs){
-            retval <- tagList(
-                p(paste("You searched ",nrow(predictions()),"protein sequences")),
-                p(paste("This search was performed with ampir version ",ampir_version," using the ",ampir_model," model. The R version was ",R.version.string)),
-                p("Click download button to retrieve results in csv format"),
-                p("Reload this page to perform a new search"),
-                downloadButton("downloadData", "Download"),
+            valid_preds <- preds %>% filter(!is.na(`AMP Probability`))
+            
+            if ( nrow(valid_preds)==0){
+                retval <- tagList(p(paste("You provided ",nrow(preds)," proteins as input but ampir could not run predictions for any of these because they were too short or contained invalid amino acids")),
+                                 p("Reload this page to try a different set of sequences"))
+            } else {
+            
+                retval <- tagList(
+                    p(paste("Calculated AMP probabilities for ",nrow(valid_preds)," out of ",nrow(preds)," input protein sequences")),
+                    p(paste("This search was performed with ampir version ",ampir_version," using the ",ampir_model," model. The R version was ",R.version.string)),
+                    p("Click download button to retrieve results in csv format"),
+                    p("Reload this page to perform a new search"),
+                    downloadButton("downloadData", "Download"),
                 
-                plotOutput('phistogram'),
+                    plotOutput('phistogram'),
         
-        
-                dataTableOutput('prediction_table')
-            )
+            
+                    dataTableOutput('prediction_table')
+                )
+            }
         } else {
-            retval <- h3("Your input did not contain any valid protein sequences")
+            retval <- tagList(p("Your input was empty. You must provide at least one valid protein sequence."),
+                              p("Reload this page to try a different set of sequences"))  
         }
         retval
     })
@@ -129,7 +143,7 @@ shinyServer(function(input, output) {
     output$phistogram <- renderPlot({
         preds <- predictions()
 
-        ggplot(preds,aes(x=`AMP Probability`)) + geom_histogram() + 
+        preds$dt %>% ggplot(aes(x=`AMP Probability`)) + geom_histogram() + 
             xlab("Probability of antimicrobial activity") +
             ylab("Number of sequences") + ggtitle("Histogram of predicted AMP probabilities")
         
@@ -140,7 +154,7 @@ shinyServer(function(input, output) {
             paste("ampir_predictions", ".csv", sep = "")
         },
         content = function(file) {
-            write_csv(predictions(), file)
+            write_csv(predictions()$dt, file)
         }
     )
     

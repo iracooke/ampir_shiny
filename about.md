@@ -3,7 +3,7 @@
 **ampir** (short for **a**nti**m**icrobial **p**eptide prediction
 **i**n **r** ) identifies antimicrobial peptides (AMPs) based on physico-chemical properties of amino acid sequences. It is optimised for scanning large collections of sequences (eg the predicted proteome for an organism) to identify a suite of putative AMPs.
 
-**ampir** was developed by [Legana Fingerhut](https://twitter.com/leganafingerhut) and [Ira Cooke](https://twitter.com/iracooke) in the [Marine Omics](https://www.marine-omics.net/) and [Marine Molecular Biology](https://www.marine-molecular-biology.group/) labs at [James Cook University](https://www.jcu.edu.au/ctbmb).  It is [open source](https://github.com/legana/ampir) and available for use via this web page or as an [R package](https://cran.r-project.org/web/packages/ampir/index.html).
+**ampir** was developed by [Legana Fingerhut](https://twitter.com/leganafingerhut) and [Ira Cooke](https://twitter.com/iracooke) in the [Marine Omics](https://www.marine-omics.net/) and [Marine Molecular Biology](https://www.marine-molecular-biology.group/) labs at [James Cook University](https://www.jcu.edu.au/ctbmb).  It is [open source](https://github.com/legana/ampir) and available for use via this web page or as an [R package](https://CRAN.R-project.org/package=ampir).
 
 If you use **ampir** in your research please cite the following paper
 
