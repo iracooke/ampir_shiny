@@ -137,7 +137,7 @@ shinyServer(function(input, output) {
     })
     
     output$prediction_table <- renderDataTable(
-        predictions()
+        predictions()$dt
     )
     
     output$phistogram <- renderPlot({

@@ -27,21 +27,15 @@ shinyUI(fluidPage(
         conditionalPanel(
             condition = ("input.go == 0"),
             wellPanel(
-                h4("Usage Instructions"),
-                h5("Select the classification model"),
+                h3("Usage Instructions"),
+                h4("Select the classification model"),
                 includeHTML("instructions.html"),
                 selectInput("ampir_model","Classification model",choices = c("Full length precursor proteins (precursor)","Mature peptides (mature)")),
-                h5("Enter protein sequences in fasta format"),
+                h4("Enter protein sequences in fasta format"),
                 p("You may either paste sequences into the text box below (suitable for small searches) or upload a file containing your sequences"),
                 br(),
                 textAreaInput("text_sequences", "Paste protein sequences", 
-                              value = "", width = "100%",height=200, placeholder = "Example input:
-                              
->dbAMP_01779
-FIGPIISALASLFG
->dbAMP_00731
-AVPLAVPLVYMGASVSPAVWNWLLVTFGAAAVAAAAVTVSDNDSHSCANNRGWCRSRCFSHEYIDSWHSDVCGSYDCCRPRY
-"),
+                              value = "", width = "100%",height=200, placeholder = ""),
                 h5("..or.."),
                 fileInput("uploaded_sequences","Upload sequences in a file (Max 100Mb)"),
                 
